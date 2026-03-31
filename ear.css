@@ -1,0 +1,103 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: #f9f8f6; --ink: #1a1a18; --muted: #999994; }
+
+html, body {
+  width: 100%; height: 100%; background: var(--bg);
+  font-family: 'Jost', sans-serif; overflow: hidden; cursor: none;
+}
+
+#cursor {
+  position: fixed; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink); pointer-events: none; transform: translate(-50%,-50%);
+  transition: width .3s, height .3s, background .3s; z-index: 9999; mix-blend-mode: multiply;
+}
+body.hovering #cursor { width: 36px; height: 36px; background: rgba(26,26,24,0.07); }
+
+.back {
+  position: fixed; top: 30px; left: 34px; z-index: 200;
+  text-decoration: none; display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; color: var(--ink); opacity: 1;
+}
+.back svg { width: 16px; height: 16px; }
+.back:hover { opacity: .45; }
+
+#stage { position: relative; width: 100vw; height: 100vh; z-index: 10; }
+
+#ear-wrap {
+  position: fixed; left: 45%; top: 50%; 
+  transform: translate(-50%, -50%);
+  height: min(70vh, 580px); width: auto;
+  max-width: 90vw;
+  z-index: 11;
+}
+#ear-wrap img { height: 100%; width: auto; display: block; }
+
+#earbud-wrap { position: fixed; pointer-events: none; z-index: 90; }
+#earbud-wrap img { width: 100%; height: 100%; display: block; }
+
+#pupil-btn {
+  position: fixed; background: none; border: none; z-index: 100; cursor: none;
+  padding: 20px; transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
+}
+#pupil-sign {
+  font-size: 28px; font-weight: 200; color: var(--ink);
+  font-family: 'Cormorant Garamond', serif; transition: transform .35s ease;
+}
+body.open #pupil-sign { transform: rotate(45deg); }
+
+.elem {
+  position: fixed; pointer-events: none; opacity: 0; z-index: 500;
+  transform-origin: center center; transform: translate(0,0) scale(0);
+  overflow: visible; /* 确保三角形不被裁切 */
+}
+.elem img { width: 100%; height: 100%; display: block; }
+
+#e1 { z-index: 510; }
+
+.detail-btn {
+  position: absolute; top: 50%; right: -60px; /* 增加距离 */
+  transform: translateY(-50%); background: none; border: none;
+  color: var(--ink); font-size: 24px; cursor: none;
+  z-index: 999; padding: 20px; opacity: 0; pointer-events: none;
+  text-shadow: 0 0 5px rgba(255,255,255,0.8); /* 增加识辨度 */
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.elem.playing .detail-btn { transform: translateY(-50%) rotate(90deg); color: #888; }
+
+#sense-label {
+  position: fixed; bottom: 40px; left: 5vw;
+  font-family: 'Rock 3D', cursive; font-size: clamp(22px, 6vw, 48px);
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+  opacity: 1; pointer-events: none;
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  html, body { cursor: auto; }
+  #cursor { display: none; }
+  .back { top: 18px; left: 18px; }
+
+  #ear-wrap {
+    left: 50%; top: 44%;
+    height: min(46vh, 300px);
+    max-width: 75vw;
+  }
+
+  .detail-btn {
+    top: 50%;
+    right: -40px;
+    left: auto; bottom: auto;
+    transform: translateY(-50%);
+    font-size: 22px;
+    padding: 14px;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .elem.playing .detail-btn {
+    transform: translateY(-50%) rotate(90deg);
+  }
+
+  #sense-label { bottom: 20px; left: 16px; font-size: clamp(18px, 7vw, 28px); }
+}

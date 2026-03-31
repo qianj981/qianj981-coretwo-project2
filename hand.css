@@ -1,0 +1,203 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: #f9f8f6; --ink: #1a1a18; --muted: #999994; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: 'Jost', sans-serif;
+  overflow: hidden; cursor: none;
+}
+
+/* Cursor */
+#cursor {
+  position: fixed; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink); pointer-events: none;
+  transform: translate(-50%,-50%);
+  transition: width .3s, height .3s, background .3s;
+  z-index: 9999; mix-blend-mode: multiply;
+}
+body.hovering #cursor { width: 36px; height: 36px; background: rgba(26,24,24,0.07); }
+
+/* Back */
+.back {
+  position: fixed; top: 30px; left: 34px; z-index: 200;
+  text-decoration: none; display: flex; align-items: center;
+  justify-content: center; width: 30px; height: 30px; color: var(--ink);
+}
+.back svg { width: 16px; height: 16px; }
+.back:hover { opacity: .45; }
+
+/* Hand image — right-anchored, full height */
+#hand-wrap {
+  position: fixed; right: 0; top: 50%;
+  transform: translateY(-50%);
+  height: min(92vh, 700px); width: auto; z-index: 10;
+}
+#hand-wrap img { height: 100%; width: auto; display: block; }
+
+/* Word SVG images — positioned by JS, fade out on open */
+.finger-word {
+  position: fixed;
+  pointer-events: none;
+  display: block;
+  z-index: 20;
+  opacity: 1;
+  transition: opacity .3s ease;
+  /* width/height set by JS to match SVG natural size × SCALE */
+}
+.finger-word.hidden { opacity: 0; }
+
+/* Nail buttons */
+.nail-btn {
+  position: fixed; background: none; border: none;
+  cursor: none; z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; transform: translate(-50%,-50%);
+}
+.nail-sign {
+  font-size: 20px; font-weight: 200; color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  user-select: none; line-height: 1; pointer-events: none;
+  transition: transform .35s ease;
+}
+.nail-btn.open .nail-sign { transform: rotate(45deg); }
+
+/* Text boxes */
+.text-box {
+  position: fixed; z-index: 50;
+  background: #fff; border: 1px solid var(--ink);
+  padding: 22px 24px; width: 300px;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.88) translateY(6px);
+  transform-origin: top right;
+  transition: opacity .35s cubic-bezier(.16,1,.3,1),
+              transform .4s  cubic-bezier(.16,1,.3,1);
+}
+.text-box.open { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
+.text-box-title {
+  font-family: 'Rock 3D', cursive; font-size: 15px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--ink); margin-bottom: 12px;
+}
+.text-box-body { font-size: 13px; line-height: 1.8; font-weight: 300; color: #555; }
+
+/* Page label */
+#sense-label {
+  position: fixed; bottom: 40px; left: 5vw;
+  font-family: 'Rock 3D', cursive; font-size: 48px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); pointer-events: none;
+}
+
+/* ── Per-box unique open effects ── */
+
+/* box0 BUMPY — violent shake */
+#box0.open .text-box-title {
+  animation: bumpy .6s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes bumpy {
+  0%   { transform: translateX(0) translateY(0) rotate(0deg); }
+  10%  { transform: translateX(-10px) translateY(-6px) rotate(-3deg); }
+  20%  { transform: translateX(10px)  translateY(6px)  rotate(3deg); }
+  30%  { transform: translateX(-9px)  translateY(-4px) rotate(-2deg); }
+  40%  { transform: translateX(9px)   translateY(4px)  rotate(2deg); }
+  55%  { transform: translateX(-5px)  translateY(-2px); }
+  70%  { transform: translateX(4px)   translateY(2px); }
+  85%  { transform: translateX(-2px); }
+  100% { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+
+/* box1 COLD — freeze: wide spacing + blue → snap back */
+#box1.open .text-box-title {
+  animation: cold 1s ease forwards;
+}
+@keyframes cold {
+  0%   { color: #b8e4f5; letter-spacing: .8em; opacity: 0; transform: scaleY(0.7); }
+  40%  { color: #6ab8d8; letter-spacing: .35em; opacity: 1; transform: scaleY(1.05); }
+  100% { color: var(--ink); letter-spacing: .15em; opacity: 1; transform: scaleY(1); }
+}
+
+/* box2 STICKY — extreme stretch + snap */
+#box2.open .text-box-title {
+  animation: sticky .7s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes sticky {
+  0%   { transform: scaleX(1)    scaleY(1);    opacity: 0.5; }
+  20%  { transform: scaleX(1.5)  scaleY(0.55); opacity: 1; }
+  45%  { transform: scaleX(0.8)  scaleY(1.4);  }
+  65%  { transform: scaleX(1.15) scaleY(0.88); }
+  82%  { transform: scaleX(0.97) scaleY(1.05); }
+  100% { transform: scaleX(1)    scaleY(1); }
+}
+
+/* box3 PLUSH — big puff inflate */
+#box3.open .text-box-title {
+  animation: plush .9s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes plush {
+  0%   { transform: scale(0.4);  opacity: 0; letter-spacing: 0em; filter: blur(6px); }
+  50%  { transform: scale(1.22); opacity: 1; letter-spacing: .22em; filter: blur(0); }
+  75%  { transform: scale(0.96); letter-spacing: .13em; }
+  100% { transform: scale(1);    opacity: 1; letter-spacing: .15em; }
+}
+
+/* box4 WARM — bright amber glow pulse */
+#box4.open .text-box-title {
+  animation: warm 1s ease forwards;
+}
+@keyframes warm {
+  0%   { color: #ff9030; text-shadow: 0 0 24px rgba(255,140,40,1), 0 0 48px rgba(255,100,0,0.6); transform: scale(1.15); }
+  50%  { color: #d06020; text-shadow: 0 0 10px rgba(220,100,30,0.5); transform: scale(1.04); }
+  100% { color: var(--ink); text-shadow: none; transform: scale(1); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .back { top: 18px; left: 18px; }
+
+  /* 手图缩小，右对齐，给左侧留出文字空间 */
+  #hand-wrap {
+    height: min(45vh, 300px);
+    top: 38%;
+  }
+
+  /* 文字框：小屏固定在底部，横向铺满 */
+  .text-box {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 45vh;
+    overflow-y: auto;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px 32px;
+    transform: scale(1) translateY(100%) !important;
+    transform-origin: bottom center !important;
+    transition: opacity .35s cubic-bezier(.16,1,.3,1),
+                transform .4s  cubic-bezier(.16,1,.3,1) !important;
+  }
+  .text-box.open {
+    transform: scale(1) translateY(0) !important;
+  }
+
+  .text-box-title { font-size: 14px; margin-bottom: 10px; }
+  .text-box-body  { font-size: 12px; line-height: 1.75; }
+
+  /* word SVG 隐藏在手机上（太小看不清） */
+  .finger-word { display: none; }
+
+  /* 指甲按钮放大，更容易点击 */
+  .nail-btn { padding: 10px; }
+  .nail-sign { font-size: 22px; }
+
+  #sense-label {
+    font-size: clamp(20px, 7vw, 36px);
+    bottom: 16px;
+    left: 16px;
+  }
+}

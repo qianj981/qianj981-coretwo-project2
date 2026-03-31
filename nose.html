@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scent — The Five Senses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rock+3D&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="nose.css">
+</head>
+<body>
+
+  <div id="cursor"></div>
+
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3">
+      <path d="M9 2L4 7l5 5"/>
+    </svg>
+  </a>
+
+  <div id="nose-wrap">
+    <img src="picture/bignose.svg" alt="Nose">
+  </div>
+
+  <!-- ── heart1 button — heart2 & heart3 appear below sequentially ── -->
+  <button class="shape-btn" id="btn-heart" onclick="togglePanel('heart')">
+    <img src="picture/heart1.svg" alt="">
+    <span class="shape-sign">+</span>
+  </button>
+  <div id="heart-rain"></div>
+
+  <!-- ── tissue → big 💧, click drop to trigger chain ── -->
+  <button class="shape-btn" id="btn-tissue" onclick="togglePanel('tissue')">
+    <img src="picture/tissue.svg" alt="">
+    <span class="shape-sign">+</span>
+  </button>
+  <div id="panel-tissue">
+    <!-- big single drop, click triggers chain -->
+    <button id="big-drop" onclick="triggerDropChain()">💧</button>
+    <div id="drop-chain"></div>
+  </div>
+
+  <!-- ── nosering → scent.jpg rounded ── -->
+  <button class="shape-btn" id="btn-nosering" onclick="togglePanel('nosering')">
+    <img src="picture/nosering.svg" alt="">
+    <span class="shape-sign">+</span>
+  </button>
+  <div id="panel-nosering">
+    <img src="picture/scent.jpg" alt="Scent">
+  </div>
+
+  <!-- ── stud → pill text box ── -->
+  <button class="shape-btn" id="btn-stud" onclick="togglePanel('stud')">
+    <img src="picture/stud.svg" alt="">
+    <span class="shape-sign">+</span>
+  </button>
+  <div id="panel-stud">
+    <div class="panel-title">Nose Stud</div>
+    <div class="panel-body">
+      A sharp tch and a little sour sting—ow—but honestly, it looks soooo cool it feels worth it.😎
+    </div>
+  </div>
+
+  <!-- ── note → 3D sticky note ── -->
+  <button class="shape-btn" id="btn-note" onclick="togglePanel('note')">
+    <img src="picture/note.svg" alt="">
+    <span class="shape-sign">+</span>
+  </button>
+  <div id="sticky-scene">
+    <div id="sticky-note">
+      <div class="sticky-face">
+        <div class="sticky-label">Scent</div>
+        <p class="sticky-body">
+          Today I smelled:<br>
+          coffee mmm,<br>
+          rain on concrete psss,<br>
+          someone’s perfume phew,<br>
+          subway air whoosh,<br>
+          fries why???,<br>
+          and… something weird ???
+</p>
+      </div>
+      <div class="sticky-corner"></div>
+    </div>
+  </div>
+
+  <div id="sense-label">Scent</div>
+
+  <div id="mobile-sticky">
+    <div class="sticky-label">Scent</div>
+    <p class="sticky-body">
+      Today I smelled:<br>
+      coffee mmm,<br>
+      rain on concrete psss,<br>
+      someone's perfume phew,<br>
+      subway air whoosh,<br>
+      fries why???,<br>
+      and… something weird ???
+    </p>
+  </div>
+  <script src="nose.js"></script>
+</body>
+</html>

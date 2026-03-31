@@ -1,0 +1,132 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: #f9f8f6; --ink: #1a1a18; --muted: #999994; }
+
+
+html, body {
+  cursor: none !important;
+}
+
+
+.cursor-dot {
+  width: 6px; 
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  position: fixed;
+  top: 0; 
+  left: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+}
+
+/* 悬停时的放大效果 */
+body.hovering .cursor-dot {
+  width: 36px; 
+  height: 36px;
+  background: rgba(26,26,24,0.07);
+}
+
+.back {
+  position: fixed; top: 30px; left: 34px; z-index: 200;
+  text-decoration: none; display: flex; align-items: center; gap: 6px;
+  color: var(--ink); font-size: 10px; letter-spacing: .2em;
+  text-transform: uppercase; font-weight: 300;
+  opacity: 0; animation: fadeUp .6s ease .3s forwards;
+}
+.back svg { width: 14px; height: 14px; }
+.back:hover { opacity: .45; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(5px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* STAGE */
+#stage {
+  width: 100vw; height: 100vh; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* EYE */
+#eye-wrap {
+  position: relative;
+  width: min(64vw, 620px);
+  opacity: 0; 
+  animation: fadeUp .9s ease .4s forwards;
+  
+  /* 必须是 0px，这决定了眼睛和圆圈的整体高度 */
+  transform: translateX(-4px) translateY(0px); 
+}
+#eye-wrap svg.eye-svg { width: 100%; height: auto; display: block; }
+
+/* PUPIL BUTTON */
+#pupil-btn {
+  position: absolute; /* 改为 absolute */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 0;
+  z-index: 100;
+}
+
+#pupil-ring {
+  width: 72px; height: 67px; border-radius: 50%;
+  border: 1px solid rgba(26,26,24,.28);
+  background: rgba(217,217,217,.6);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .3s;
+}
+#pupil-btn:hover #pupil-ring { background: rgba(185,185,180,.8); }
+#pupil-sign {
+  font-size: 22px; line-height: 1; font-weight: 200;
+  color: var(--ink); user-select: none;
+  font-family: 'Cormorant Garamond', serif;
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
+body.open #pupil-sign { transform: rotate(45deg); }
+
+/* SHARDS */
+.shard {
+  position: fixed;
+  pointer-events: none;
+  z-index: 50;
+  transform-origin: center center; /* 从 50% 100% 改为 center */
+  opacity: 0;
+  transform: translate(0,0) rotate(0deg) scale(0); /* 初始缩放设为 0 */
+}
+
+.shard svg.shape-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.pic-label {
+  position: absolute; bottom: 13%; right: 8%;
+  font-size: 7px; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(26,26,24,.6); font-weight: 300;
+  display: flex; align-items: center; gap: 3px; white-space: nowrap;
+  pointer-events: none;
+}
+.pic-label::after { content: '▶'; font-size: 5px; }
+
+/* LABELS */
+#sense-label {
+  position: fixed; bottom: 40px; left: 5vw;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(12px,1.6vw,17px); font-weight: 300;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  opacity: 0; animation: fadeUp .6s ease .8s forwards;
+}
+#hint {
+  position: fixed; bottom: 40px; right: 5vw;
+  font-size: 8px; letter-spacing: .22em; text-transform: uppercase;
+  font-weight: 300; color: var(--muted);
+  opacity: 0; animation: fadeUp .6s ease 1.1s forwards;
+  transition: opacity .4s;
+}
+body.open #hint { opacity: 0 !important; }

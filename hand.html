@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Touch — The Five Senses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rock+3D&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hand.css">
+</head>
+<body>
+
+  <div id="cursor"></div>
+
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3">
+      <path d="M9 2L4 7l5 5"/>
+    </svg>
+  </a>
+
+  <div id="hand-wrap">
+    <img src="picture/Bighand_nowords.svg" alt="Hand">
+  </div>
+
+  
+  <img class="finger-word" id="word0" src="picture/BUMPY.svg"  alt="BUMPY">
+  <img class="finger-word" id="word1" src="picture/Cold.svg"   alt="Cold">
+  <img class="finger-word" id="word2" src="picture/Sticky.svg" alt="Sticky">
+  <img class="finger-word" id="word3" src="picture/PLUSH.svg"  alt="Plush">
+  <img class="finger-word" id="word4" src="picture/Warm.svg"   alt="Warm">
+
+ 
+  <button class="nail-btn" id="nail0" onclick="toggleDetail(0)"><span class="nail-sign">+</span></button>
+  <button class="nail-btn" id="nail1" onclick="toggleDetail(1)"><span class="nail-sign">+</span></button>
+  <button class="nail-btn" id="nail2" onclick="toggleDetail(2)"><span class="nail-sign">+</span></button>
+  <button class="nail-btn" id="nail3" onclick="toggleDetail(3)"><span class="nail-sign">+</span></button>
+  <button class="nail-btn" id="nail4" onclick="toggleDetail(4)"><span class="nail-sign">+</span></button>
+
+ 
+  <div class="text-box" id="box0">
+    <div class="text-box-title">Bumpy</div>
+    <div class="text-box-body">Bumpy surfaces poke beneath the skin like the ridges on a cobblestone path. Tiny raised bumps jab and wiggle unpredictably, making you slow down, step carefully, or run your fingers over them out of curiosity.</div>
+  </div>
+  <div class="text-box" id="box1">
+    <div class="text-box-title">Cold</div>
+    <div class="text-box-body">Cold sneaks in when your fingers dip into an ice-cold stream. A chill sharpens attention, stretches time, and makes every stone and leaf feel deliberate under your touch.</div>
+  </div>
+  <div class="text-box" id="box2">
+    <div class="text-box-title">Sticky</div>
+    <div class="text-box-body">Stickiness grabs your fingers like melted honey on a spoon. Skin resists being pulled away as moisture or resin clings, reminding you of the fuzzy line between yourself and whatever wants to hold on.
+    </div>
+  </div>
+  <div class="text-box" id="box3">
+    <div class="text-box-title">Plush</div>
+    <div class="text-box-body">Plush surfaces give way like sinking your hands into a heap of soft fleece or a fluffy stuffed animal. Dense fibers cradle your fingers, spreading pressure evenly and inviting you to linger longer, luxuriating in the softness.</div>
+  </div>
+  <div class="text-box" id="box4">
+    <div class="text-box-title">Warm</div>
+    <div class="text-box-body">Warmth spreads when you bury your hand in a cat or dog’s fur. It feels alive, cozy, and undeniably close, a comforting touch you remember and never quite forget.</div>
+  </div>
+
+  <div id="sense-label">Touch</div>
+  <script src="hand.js"></script>
+</body>
+</html>

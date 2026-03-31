@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sight — The Five Senses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rock+3D&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #f9f8f6; --ink: #1a1a18; --muted: #999994; }
+    html, body { width: 100%; height: 100%; background: var(--bg); font-family: 'Jost', sans-serif; overflow: hidden; cursor: none; }
+
+    .cursor-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--ink);
+      position: fixed; top: 0; left: 0; pointer-events: none;
+      transform: translate(-50%, -50%); transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+      z-index: 9999; mix-blend-mode: multiply;
+    }
+    body.hovering .cursor-dot { width: 36px; height: 36px; background: rgba(26,26,24,0.07); }
+
+    .back {
+      position: fixed; top: 30px; left: 34px; z-index: 200;
+      text-decoration: none; display: flex; align-items: center; gap: 6px;
+      color: var(--ink); font-size: 10px; letter-spacing: .2em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .back svg { width: 14px; height: 14px; }
+
+    #stage { width: 100vw; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; }
+    #eye-wrap { position: relative; width: min(88vw, 620px); }
+    #eye-wrap svg.eye-svg { width: 100%; height: auto; display: block; }
+
+    #pupil-btn { position: absolute; left: 48%; top: 48.7%; transform: translate(-50%, -50%); background: none; border: none; z-index: 100; }
+    #pupil-ring {
+      width: 72px; height: 67px; border-radius: 50%; border: 1px solid rgba(26,26,24,.2);
+      background: rgba(217,217,217,.4); display: flex; align-items: center; justify-content: center;
+    }
+    #pupil-sign { font-size: 22px; font-weight: 200; color: var(--ink); font-family: 'Cormorant Garamond', serif; transition: transform .35s; }
+    body.open #pupil-sign { transform: rotate(45deg); }
+
+    .shard { 
+      position: fixed; pointer-events: none; z-index: 50; opacity: 0; 
+      transform-origin: center center;
+    }
+    .shard svg.shape-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .shard image { transition: clip-path 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .shard.revealed { z-index: 150; }
+    .shard.revealed image { clip-path: none !important; }
+
+    .shard-btn {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      background: none; border: none; color: var(--ink);
+      font-size: 24px; cursor: none; z-index: 60;
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+    .shard:hover .shard-btn, .shard.revealed .shard-btn { opacity: 1; }
+    .shard.revealed .shard-btn { transform: translate(-50%, -50%) rotate(90deg); color: #fff; }
+
+    #sense-label { 
+      position: fixed; bottom: 40px; left: 5vw; color: var(--muted); 
+      text-transform: uppercase; font-family: 'Rock 3D', cursive;
+      font-size: clamp(20px, 6vw, 48px); letter-spacing: 0.15em; opacity: 0.6; pointer-events: none;
+    }
+    @media (max-width: 600px) {
+      .back { top: 18px; left: 18px; }
+      #pupil-ring { width: 52px; height: 48px; }
+      #pupil-sign { font-size: 18px; }
+      #sense-label { bottom: 20px; }
+      .shard-btn { font-size: 18px; }
+    }
+
+    /* ── Per-shard unique reveal effects ── */
+
+    /* s0: 三角形 — 旋转光晕 */
+    #s0.revealed {
+      animation: s0pop .6s cubic-bezier(.16,1,.3,1) forwards;
+      filter: drop-shadow(0 0 0px rgba(255,200,100,0));
+    }
+    @keyframes s0pop {
+      0%   { transform: translate(-240px,-130px) scale(1)    rotate(0deg); filter: drop-shadow(0 0 0px rgba(255,200,100,0)); }
+      30%  { transform: translate(-240px,-130px) scale(1.1)  rotate(-4deg); filter: drop-shadow(0 0 18px rgba(255,200,100,0.7)); }
+      100% { transform: translate(-240px,-130px) scale(1)    rotate(0deg); filter: drop-shadow(0 0 6px rgba(255,200,100,0.3)); }
+    }
+
+    /* s1: 星形 — 震动+闪白 */
+    #s1.revealed {
+      animation: s1shake .5s cubic-bezier(.16,1,.3,1) forwards;
+    }
+    @keyframes s1shake {
+      0%   { transform: translate(-100px,-210px) scale(1); filter: brightness(1); }
+      15%  { transform: translate(-106px,-210px) scale(1.05); filter: brightness(1.8); }
+      30%  { transform: translate(-94px,-210px) scale(1.05); filter: brightness(1); }
+      45%  { transform: translate(-104px,-210px) scale(1.03); }
+      60%  { transform: translate(-97px,-210px) scale(1.02); }
+      100% { transform: translate(-100px,-210px) scale(1); filter: brightness(1); }
+    }
+
+    /* s2: 四边形 — 慢速浮现+颜色饱和 */
+    #s2.revealed {
+      animation: s2float .8s cubic-bezier(.16,1,.3,1) forwards;
+    }
+    @keyframes s2float {
+      0%   { transform: translate(60px,-220px) scale(0.85); filter: saturate(0) brightness(1.5); opacity: 0.3; }
+      60%  { transform: translate(60px,-228px) scale(1.05); filter: saturate(1.4) brightness(1.1); opacity: 1; }
+      100% { transform: translate(60px,-220px) scale(1);    filter: saturate(1) brightness(1); opacity: 1; }
+    }
+
+    /* s3: 弧形 — 翻转进入 */
+    #s3.revealed {
+      animation: s3flip .7s cubic-bezier(.16,1,.3,1) forwards;
+      transform-style: preserve-3d;
+    }
+    @keyframes s3flip {
+      0%   { transform: translate(210px,-150px) scale(1) rotateY(90deg); opacity: 0.2; }
+      50%  { transform: translate(210px,-150px) scale(1.08) rotateY(-8deg); opacity: 1; }
+      100% { transform: translate(210px,-150px) scale(1) rotateY(0deg); opacity: 1; }
+    }
+
+    /* s4: 有机blob — 弹跳+涟漪光环 */
+    #s4.revealed {
+      animation: s4bounce .65s cubic-bezier(.16,1,.3,1) forwards;
+    }
+    @keyframes s4bounce {
+      0%   { transform: translate(310px,-40px) scale(0.6); filter: hue-rotate(0deg); }
+      40%  { transform: translate(310px,-54px) scale(1.15); filter: hue-rotate(30deg) brightness(1.2); }
+      65%  { transform: translate(310px,-36px) scale(0.95); filter: hue-rotate(0deg); }
+      85%  { transform: translate(310px,-43px) scale(1.03); }
+      100% { transform: translate(310px,-40px) scale(1); }
+    }
+
+    /* s4 涟漪光环 */
+    #s4.revealed::after {
+      content: '';
+      position: absolute;
+      inset: -15%;
+      border-radius: 50%;
+      border: 2px solid rgba(26,26,24,0.2);
+      animation: rippleOut .9s ease-out .2s forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleOut {
+      0%   { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* s1 闪白overlay */
+    #s1.revealed::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      animation: flashWhite .4s ease forwards;
+      z-index: 10;
+    }
+    @keyframes flashWhite {
+      0%   { opacity: 0.7; }
+      100% { opacity: 0; }
+    }
+
+    /* s2 颜色层 */
+    #s2.revealed::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(100,180,255,0.25), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      animation: colorWash .8s ease .1s forwards;
+      z-index: 10;
+    }
+    @keyframes colorWash {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      @keyframes s0pop {
+        0%   { transform: translate(-110px,-70px) scale(1) rotate(0deg); filter: drop-shadow(0 0 0px rgba(255,200,100,0)); }
+        30%  { transform: translate(-110px,-70px) scale(1.1) rotate(-4deg); filter: drop-shadow(0 0 14px rgba(255,200,100,0.7)); }
+        100% { transform: translate(-110px,-70px) scale(1) rotate(0deg); filter: drop-shadow(0 0 5px rgba(255,200,100,0.3)); }
+      }
+      @keyframes s1shake {
+        0%   { transform: translate(-50px,-115px) scale(1); }
+        15%  { transform: translate(-56px,-115px) scale(1.05); filter: brightness(1.8); }
+        30%  { transform: translate(-44px,-115px) scale(1.05); }
+        45%  { transform: translate(-54px,-115px) scale(1.03); }
+        100% { transform: translate(-50px,-115px) scale(1); }
+      }
+      @keyframes s2float {
+        0%   { transform: translate(28px,-120px) scale(0.85); filter: saturate(0) brightness(1.5); opacity: 0.3; }
+        60%  { transform: translate(28px,-126px) scale(1.05); filter: saturate(1.4) brightness(1.1); opacity: 1; }
+        100% { transform: translate(28px,-120px) scale(1); filter: saturate(1) brightness(1); opacity: 1; }
+      }
+      @keyframes s3flip {
+        0%   { transform: translate(98px,-83px) scale(1) rotateY(90deg); opacity: 0.2; }
+        50%  { transform: translate(98px,-83px) scale(1.08) rotateY(-8deg); opacity: 1; }
+        100% { transform: translate(98px,-83px) scale(1) rotateY(0deg); opacity: 1; }
+      }
+      @keyframes s4bounce {
+        0%   { transform: translate(145px,-22px) scale(0.6); }
+        40%  { transform: translate(145px,-30px) scale(1.15); filter: hue-rotate(30deg) brightness(1.2); }
+        65%  { transform: translate(145px,-20px) scale(0.95); }
+        85%  { transform: translate(145px,-24px) scale(1.03); }
+        100% { transform: translate(145px,-22px) scale(1); }
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursorDot"></div>
+
+<a class="back" href="index.html">
+  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 2L4 7l5 5"/></svg>
+</a>
+
+<div id="stage">
+  <div id="eye-wrap">
+    <svg class="eye-svg" viewBox="0 0 200 105" fill="none">
+      <path d="M89.5447 7.65631C37.1722 13.5227 16.6237 56.2203 12.896 76.8358L11.2333 78.5406C10.1716 80.3176 7.52482 83.3463 5.89111 87.5443C3.84898 92.7918 10.474 92.6076 12.0338 89.4946C13.5936 86.3816 22.646 87.9694 25.4941 88.511C28.3423 89.0526 106.24 99.8548 138.254 94.2165C163.865 89.7058 188.928 73.7192 198.257 66.2898C183.842 44.301 141.917 1.78994 89.5447 7.65631Z" stroke="#1a1a18" stroke-width="0.7"/>
+      <path d="M96.0447 7.63657C120.742 7.63657 140.743 27.1542 140.743 51.2039C140.743 75.2539 120.743 94.7723 96.0447 94.7723C71.3471 94.7721 51.3475 75.2538 51.3475 51.2039C51.3477 27.1543 71.3472 7.63682 96.0447 7.63657Z" stroke="#1a1a18" stroke-width="0.7"/>
+    </svg>
+    <button id="pupil-btn" onclick="toggleMainEye()">
+      <div id="pupil-ring"><span id="pupil-sign">+</span></div>
+    </button>
+  </div>
+</div>
+
+<div class="shard" id="s0"><button class="shard-btn" onclick="revealShard(0)">▶</button><svg class="shape-svg" viewBox="0 0 174 168"><defs><clipPath id="cp0"><path d="M146.806 0L173.343 168.001L0 85.8872L146.806 0Z"/></clipPath></defs><image href="picture/1.jpg" width="100%" height="100%" clip-path="url(#cp0)" preserveAspectRatio="xMidYMid slice"/></svg></div>
+<div class="shard" id="s1"><button class="shard-btn" onclick="revealShard(1)">▶</button><svg class="shape-svg" viewBox="0 0 248 261"><defs><clipPath id="cp1"><path d="M155.42 97.6449L153.639 0L106.219 96.9108L0 134.84L89.8711 147.729L109.198 260.22L156.352 148.721L247.588 150.082L155.42 97.6449Z"/></clipPath></defs><image href="picture/2.jpg" width="100%" height="100%" clip-path="url(#cp1)" preserveAspectRatio="xMidYMid slice"/></svg></div>
+<div class="shard" id="s2"><button class="shard-btn" onclick="revealShard(2)">▶</button><svg class="shape-svg" viewBox="0 0 214 195"><defs><clipPath id="cp2"><path d="M52.4446 61L213.445 0L128.945 163L0 194.579L52.4446 61Z"/></clipPath></defs><image href="picture/3.jpg" width="100%" height="100%" clip-path="url(#cp2)" preserveAspectRatio="xMidYMid slice"/></svg></div>
+<div class="shard" id="s3"><button class="shard-btn" onclick="revealShard(3)">▶</button><svg class="shape-svg" viewBox="0 0 222 183"><defs><clipPath id="cp3"><path d="M220.217 1.43776C116.377 81.2152 30.991 103.806 1.27811 105.129L90.0494 181.835C143.497 177.902 199.098 59.9315 220.217 1.43776Z"/></clipPath></defs><image href="picture/4.jpg" width="100%" height="100%" clip-path="url(#cp3)" preserveAspectRatio="xMidYMid slice"/></svg></div>
+<div class="shard" id="s4"><button class="shard-btn" onclick="revealShard(4)">▶</button><svg class="shape-svg" viewBox="0 0 138 97"><defs><clipPath id="cp4"><path d="M25.8532 79.9619L1.3532 20.4619C81.8532 2.46185 156.653 -11.9381 122.353 92.4619C80.7532 102.462 40.6865 88.2952 25.8532 79.9619Z"/></clipPath></defs><image href="picture/5.jpg" width="100%" height="100%" clip-path="url(#cp4)" preserveAspectRatio="xMidYMid slice"/></svg></div>
+
+<div id="sense-label">Sight</div>
+
+<script>
+  const dot = document.getElementById('cursorDot');
+  window.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
+
+  // 所有 rot 属性均已设为 0，确保水平
+  const SHARDS = [
+    { id:'s0', nw:174, nh:168, sc:0.75, dx:-240, dy:-130, rot:0 },
+    { id:'s1', nw:248, nh:261, sc:0.68, dx:-100, dy:-210, rot:0 },
+    { id:'s2', nw:214, nh:195, sc:0.72, dx: 60,  dy:-220, rot:0 },
+    { id:'s3', nw:222, nh:183, sc:0.70, dx: 210, dy:-150, rot:0 },
+    { id:'s4', nw:138, nh: 97, sc:0.82, dx: 310, dy:-40,  rot:0 }
+  ];
+
+  let isOpen = false;
+  let currentRevealedIdx = -1;
+  const el_w = [], el_h = [];
+
+  function toggleMainEye() {
+    isOpen = !isOpen;
+    document.body.classList.toggle('open', isOpen);
+    if (!isOpen) {
+      if (currentRevealedIdx !== -1) {
+        document.getElementById('s' + currentRevealedIdx).classList.remove('revealed');
+        currentRevealedIdx = -1;
+      }
+    }
+    updateLayout();
+  }
+
+  function revealShard(idx) {
+    const el = document.getElementById('s' + idx);
+    if (currentRevealedIdx === idx) {
+      el.classList.remove('revealed');
+      currentRevealedIdx = -1;
+      return;
+    }
+    if (currentRevealedIdx !== -1) {
+      document.getElementById('s' + currentRevealedIdx).classList.remove('revealed');
+    }
+    el.classList.add('revealed');
+    currentRevealedIdx = idx;
+  }
+
+  function updateLayout() {
+    const btn = document.getElementById('pupil-btn');
+    const r = btn.getBoundingClientRect();
+    const PX = r.left + r.width / 2;
+    const PY = r.top + r.height / 2;
+    
+    // scale shard offsets to viewport so nothing flies off on mobile
+    const mob = Math.min(1, window.innerWidth / 900);
+
+    SHARDS.forEach((cfg, i) => {
+      const sc = cfg.sc * mob;
+      const w = cfg.nw * sc, h = cfg.nh * sc;
+      el_w[i] = w; el_h[i] = h;
+      const el = document.getElementById(cfg.id);
+      el.style.width = w + 'px'; el.style.height = h + 'px';
+      el.style.left = (PX - w / 2) + 'px';
+      el.style.top = (PY - h / 2) + 'px';
+
+      const dx = cfg.dx * mob, dy = cfg.dy * mob;
+      if(isOpen) {
+        el.style.transition = `opacity 0.6s ease ${i * 40}ms, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * 40}ms`;
+        el.style.opacity = '1';
+        el.style.transform = `translate(${dx}px, ${dy}px) rotate(${cfg.rot}deg) scale(1)`;
+        el.style.pointerEvents = 'auto';
+      } else {
+        el.style.transition = `all 0.4s ease`;
+        el.style.opacity = '0';
+        el.style.transform = `translate(0, 0) rotate(0deg) scale(0)`;
+        el.style.pointerEvents = 'none';
+      }
+    });
+  }
+
+  window.onload = () => {
+    updateLayout();
+    document.querySelectorAll('a, button, .shard').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
+  };
+  window.onresize = updateLayout;
+</script>
+</body>
+</html>

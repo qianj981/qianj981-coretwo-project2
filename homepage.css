@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f9f8f6;
+  --ink: #1a1a18;
+  --muted: #888884;
+  --line: #d0ceca;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 0 5vw;
+  padding-bottom: 10vh; 
+}
+
+.senses-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 5vw, 72px);
+  padding: clamp(24px, 4vh, 50px) 0 clamp(48px, 8vh, 98px);
+  transform: translateX(-4px); 
+}
+
+.sense-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.sense-link img {
+  display: block;
+  width: auto;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sense-link[data-sense="eye"] img   { height: 100px; }
+.sense-link[data-sense="ear"] img   { height: 138px; }
+.sense-link[data-sense="hand"] img  { height: 112px; }
+.sense-link[data-sense="mouth"] img { height: 120px; }
+.sense-link[data-sense="nose"] img  { height: 150px; }
+
+.sense-link:hover img {
+  transform: scale(1.12) translateY(-4px);
+}
+
+.sense-link::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.25s;
+  white-space: nowrap;
+  font-weight: 300;
+}
+
+.sense-link:hover::after { 
+  opacity: 1; 
+}
+
+.bottom {
+  padding-bottom: clamp(48px, 8vh, 96px);
+}
+
+.title-block {
+  text-align: center;
+  border-bottom: 0.5px solid var(--ink);
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
+
+.main-title {
+  font-family: "Rock 3D", system-ui;
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(32px, 5vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  margin: 0;
+}
+
+details.about summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 300;
+  cursor: pointer;
+  user-select: none;
+  color: var(--ink);
+  width: fit-content;
+}
+
+details.about summary::-webkit-details-marker { 
+  display: none; 
+}
+
+.toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.3s ease;
+  display: inline-block;
+  font-style: normal;
+}
+
+details.about[open] .toggle-icon {
+  transform: rotate(45deg);
+}
+
+.about-body {
+  max-width: 520px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.75;
+  font-weight: 300;
+  color: var(--muted);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+}
+
+details.about[open] .about-body {
+  max-height: 200px;
+}
+
+.cursor-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+}
+
+body.hovering .cursor-dot {
+  width: 36px; height: 36px;
+  background: rgba(26,26,24,0.07);
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  html, body { cursor: auto; }
+  .cursor-dot { display: none; }
+
+  .page {
+    padding: 0 6vw;
+    padding-bottom: 8vh;
+    min-height: 100svh;
+  }
+
+  .senses-row {
+    gap: clamp(16px, 4vw, 28px);
+    flex-wrap: nowrap;
+    padding: clamp(16px, 3vh, 30px) 0 clamp(24px, 5vh, 48px);
+  }
+
+  /* 所有图标统一缩小 */
+  .sense-link[data-sense="eye"]   img { height: 52px; }
+  .sense-link[data-sense="ear"]   img { height: 72px; }
+  .sense-link[data-sense="hand"]  img { height: 58px; }
+  .sense-link[data-sense="mouth"] img { height: 62px; }
+  .sense-link[data-sense="nose"]  img { height: 78px; }
+
+  /* 标签常显，不依赖hover */
+  .sense-link::after {
+    opacity: 0.6;
+    font-size: 8px;
+    bottom: -18px;
+  }
+
+  .main-title {
+    font-size: clamp(22px, 8vw, 40px);
+    white-space: normal;
+    text-align: center;
+  }
+
+  .title-block { padding-bottom: 14px; margin-bottom: 18px; }
+
+  .about-body { font-size: 12px; }
+}

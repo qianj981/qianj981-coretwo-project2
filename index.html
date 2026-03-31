@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Five Senses</title>
+  <link rel="stylesheet" href="homepage.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rock+3D&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div id="home" class="page">
+    
+    <div class="senses-row">
+      <a class="sense-link" data-sense="eye" data-label="Sight" href="eye.html">
+        <img src="picture/eye.svg" alt="Eye">
+      </a>
+      <a class="sense-link" data-sense="ear" data-label="Hearing" href="ear.html">
+        <img src="picture/ear.svg" alt="Ear">
+      </a>
+      <a class="sense-link" data-sense="hand" data-label="Touch" href="hand.html">
+        <img src="picture/hand.svg" alt="Hand">
+      </a>
+      <a class="sense-link" data-sense="mouth" data-label="Taste" href="mouth.html">
+        <img src="picture/mouth.svg" alt="Mouth">
+      </a>
+      <a class="sense-link" data-sense="nose" data-label="Smell" href="nose.html">
+        <img src="picture/nose.svg" alt="Nose">
+      </a>
+    </div>
+
+    <div class="bottom">
+      <div class="title-block">
+        <h1 class="main-title">The Five Senses</h1>
+      </div>
+
+      <details class="about">
+        <summary>ABOUT <span class="toggle-icon">+</span></summary>
+        <div class="about-body">
+          <p>This project presents 25 interactive “details” elements that explore the five senses. <br>Each instance invites users to engage with sight, sound, touch, taste, or smell.</p>
+        </div>
+      </details>
+    </div>
+
+  </div>
+
+  <script>
+    const dot = document.getElementById('cursorDot');
+    window.addEventListener('mousemove', e => {
+      dot.style.left = e.clientX + 'px';
+      dot.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, summary').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
+  </script>
+
+</body>
+</html>
