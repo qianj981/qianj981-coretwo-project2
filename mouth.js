@@ -1,144 +1,333 @@
-const cur = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  if (cur) {
-    cur.style.left = e.clientX + 'px';
-    cur.style.top  = e.clientY + 'px';
-  }
-});
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg: #f9f8f6; --ink: #1a1a18; --muted: #999994; }
 
-// 确保光标悬停在所有可交互元素上时都会变大
-document.querySelectorAll('a, button, .shape-btn, #btn-audio').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-});
-
-const VB_W = 976, VB_H = 834;
-
-const SHAPES = [
-  { id: 'green', svgX: 380, svgY: 355, natW: 66,  natH: 113, panel: 'panel-green' },
-  { id: 'red',   svgX: 545, svgY: 290, natW: 81,  natH: 58,  panel: 'panel-red'   },
-  { id: 'star',  svgX: 438, svgY: 520, natW: 63,  natH: 90,  panel: 'panel-star'  },
-  { id: 'ring',  svgX: 666, svgY: 665, natW: 98,  natH: 240, panel: 'panel-ring'  },
-];
-
-const AUDIO = { svgX: 602, svgY: 453, panel: 'panel-audio' };
-
-let SCALE = 1, WRAP_LEFT = 0, WRAP_TOP = 0;
-let openId = null;
-
-function layout() {
-  const wrap = document.getElementById('mouth-wrap');
-  if (!wrap) return;
-  const r    = wrap.getBoundingClientRect();
-  const rendH = r.height;
-  SCALE      = rendH / VB_H;
-  WRAP_LEFT = r.left;
-  WRAP_TOP  = r.top;
-
-  const isMob = window.innerWidth <= 768;
-
-  SHAPES.forEach(sh => {
-    const sx = WRAP_LEFT + sh.svgX * SCALE;
-    const sy = WRAP_TOP  + sh.svgY * SCALE;
-    const btn = document.getElementById('btn-' + sh.id);
-    if (!btn) return;
-    btn.style.left   = sx + 'px';
-    btn.style.top    = sy + 'px';
-    const img = btn.querySelector('img');
-    if (img) {
-      img.style.width  = (sh.natW * SCALE) + 'px';
-      img.style.height = (sh.natH * SCALE) + 'px';
-    }
-    if (!isMob) positionPanel(sh.id, sx, sy, sh);
-  });
-
-  const ax = WRAP_LEFT + AUDIO.svgX * SCALE;
-  const ay = WRAP_TOP  + AUDIO.svgY * SCALE;
-  const aBtn = document.getElementById('btn-audio');
-  if (aBtn) { aBtn.style.left = ax + 'px'; aBtn.style.top = ay + 'px'; }
-  if (!isMob) {
-    const apanel = document.getElementById('panel-audio');
-    if (apanel) { apanel.style.left = (ax + 40) + 'px'; apanel.style.top = (ay - 20) + 'px'; }
-  }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: 'Jost', sans-serif;
+  overflow: hidden; cursor: none;
 }
 
-function positionPanel(id, sx, sy, sh) {
-  const panel = document.getElementById('panel-' + id);
-  if (!panel) return;
+/* ── Cursor ── */
+#cursor {
+  position: fixed; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink); pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width .3s, height .3s, background .3s;
+  z-index: 9999; mix-blend-mode: multiply;
+}
+body.hovering #cursor { width: 36px; height: 36px; background: rgba(26,24,24,0.07); }
 
-  const sizeMultiplier = 1.6; 
+/* ── Back ── */
+.back {
+  position: fixed; top: 30px; left: 34px; z-index: 200;
+  text-decoration: none; display: flex; align-items: center;
+  justify-content: center; width: 30px; height: 30px; color: var(--ink);
+}
+.back svg { width: 16px; height: 16px; }
+.back:hover { opacity: .45; }
 
-  if (id === 'green') {
-    const offsetLeft = 60; 
-    const pw = Math.round(240 * SCALE * sizeMultiplier);
-    const ph = Math.round(180 * SCALE * sizeMultiplier);
-    panel.style.width  = pw + 'px';
-    panel.style.height = 'auto';
-    panel.style.left   = (sx - pw - offsetLeft) + 'px';
-    panel.style.top    = (sy - ph / 2) + 'px';
-  } else if (id === 'red') {
-    const offsetTop = 15; 
-    const pw = Math.round(160 * SCALE * sizeMultiplier);
-    const ph = Math.round(200 * SCALE * sizeMultiplier);
-    panel.style.width  = pw + 'px';
-    panel.style.height = 'auto';
-    panel.style.left   = (sx - pw / 2) + 'px';
-    panel.style.top    = (sy - ph - offsetTop) + 'px';
-  } else if (id === 'star') {
-    const offsetLeft = 5; 
-    const pw = Math.round(200 * SCALE * sizeMultiplier);
-    panel.style.width  = pw + 'px';
-    panel.style.height = 'auto';
-    panel.style.left   = (sx - pw - offsetLeft) + 'px';
-    panel.style.top    = sy + 'px'; 
-  } else if (id === 'ring') {
-    const offsetRight = 60;
-    panel.style.width  = Math.round(260 * SCALE * sizeMultiplier) + 'px';
-    panel.style.left   = (sx + (sh.natW * SCALE) + offsetRight) + 'px';
-    panel.style.top    = (sy - 50) + 'px';
-  }
+/* ── Nose SVG ── */
+#nose-wrap {
+  position: fixed;
+  left: 50%; top: 44%;
+  transform: translate(-50%, -50%);
+  height: min(76vh, 620px);
+  width: auto; z-index: 10;
+}
+#nose-wrap img { height: 100%; width: auto; display: block; }
+
+/* ── Shape buttons ── */
+.shape-btn {
+  position: fixed;
+  background: none; border: none;
+  cursor: none; z-index: 30; padding: 0;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
+}
+.shape-btn img { display: block; transition: transform .3s ease; }
+.shape-btn:hover img { transform: scale(1.06); }
+
+.shape-sign {
+  position: absolute;
+  font-size: 18px; font-weight: 200; color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  pointer-events: none;
+  transition: transform .35s ease;
+}
+.shape-btn.open .shape-sign { transform: rotate(45deg); }
+
+/* ── Heart sequential animation ── */
+/* heart2 and heart3 are fixed-positioned imgs that slide in */
+.heart-seq {
+  position: fixed;
+  z-index: 50;
+  display: block;
+  opacity: 0;
+  transform: translateY(-20px) scale(0.85);
+  transition: opacity .35s cubic-bezier(.16,1,.3,1),
+              transform .4s cubic-bezier(.16,1,.3,1);
+  pointer-events: none;
+}
+.heart-seq.heart-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
-window.addEventListener('load', layout);
-window.addEventListener('resize', layout);
-
-function toggleShape(id) {
-  if (openId === id) {
-    closeAll();
-  } else {
-    closeAll();
-    openId = id;
-    document.getElementById('btn-' + id).classList.add('open');
-    document.getElementById('panel-' + id).classList.add('open');
-  }
+/* ── Tissue panel ── */
+#panel-tissue {
+  position: fixed; z-index: 50;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.85) translateY(8px);
+  transition: opacity .35s cubic-bezier(.16,1,.3,1),
+              transform .4s cubic-bezier(.16,1,.3,1);
+}
+#panel-tissue.open {
+  opacity: 1; pointer-events: auto;
+  transform: scale(1) translateY(0);
 }
 
-function toggleAudio() {
-  const audio = document.getElementById('audio-el');
-  const btn   = document.getElementById('btn-audio');
-  const panel = document.getElementById('panel-audio');
-  if (openId === 'audio') {
-    audio.pause(); audio.currentTime = 0;
-    btn.classList.remove('open');
-    panel.classList.remove('open');
-    openId = null;
-  } else {
-    closeAll();
-    openId = 'audio';
-    btn.classList.add('open');
-    panel.classList.add('open');
-    audio.play();
-  }
+/* Big drop button */
+#big-drop {
+  font-size: 72px; line-height: 1;
+  background: none; border: none; cursor: none;
+  display: block;
+  transition: transform .2s ease;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+}
+#big-drop:hover { transform: scale(1.1); }
+
+/* Drop chain — drops fall one by one */
+#drop-chain {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; margin-top: 4px;
+}
+#drop-chain.dropping span {
+  display: block; font-size: 22px; line-height: 1;
+  opacity: 0;
+  animation: dropFall .6s ease forwards;
+}
+@keyframes dropFall {
+  0%   { opacity: 0; transform: translateY(-20px); }
+  40%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0.7; transform: translateY(8px); }
 }
 
-function closeAll() {
-  SHAPES.forEach(sh => {
-    document.getElementById('btn-' + sh.id)?.classList.remove('open');
-    document.getElementById('panel-' + sh.id)?.classList.remove('open');
-  });
-  const audio = document.getElementById('audio-el');
-  if (audio) { audio.pause(); audio.currentTime = 0; }
-  document.getElementById('btn-audio')?.classList.remove('open');
-  document.getElementById('panel-audio')?.classList.remove('open');
-  openId = null;
+/* ── Nosering panel ── */
+#panel-nosering {
+  position: fixed; z-index: 50;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.9);
+  transform-origin: left center;
+  transition: opacity .4s cubic-bezier(.16,1,.3,1),
+              transform .4s cubic-bezier(.16,1,.3,1);
+  background: #fff;
+  padding: 12px;
+  border: 1px solid var(--ink);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+#panel-nosering.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+#panel-nosering img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Stud panel — pill shape ── */
+#panel-stud {
+  position: fixed; z-index: 50;
+  background: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 24px 32px;
+  width: 260px;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.88);
+  transform-origin: top left;
+  transition: opacity .4s cubic-bezier(.16,1,.3,1),
+              transform .4s cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+#panel-stud.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+#panel-stud .panel-title {
+  font-family: 'Rock 3D', cursive; font-size: 12px;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--ink); margin-bottom: 8px;
+}
+#panel-stud .panel-body {
+  font-size: 11px; line-height: 1.8;
+  font-weight: 300; color: #555;
+}
+
+/* ── Note panel — note1.svg as background, text on top ── */
+#panel-note {
+  position: fixed; z-index: 50;
+  opacity: 0; pointer-events: none;
+  transform: scale(0.9);
+  transform-origin: top right;
+  transition: opacity .4s cubic-bezier(.16,1,.3,1),
+              transform .4s cubic-bezier(.16,1,.3,1);
+}
+#panel-note.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+/* note-inner: SVG as background image layer, text overlaid */
+.note-inner {
+  position: relative;
+  display: inline-block;
+}
+.note-inner img {
+  display: block;
+  width: 100%;
+}
+.note-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  font-size: 11px; line-height: 1.75;
+  font-weight: 300; color: #333;
+  text-align: center;
+}
+
+/* ── Page label ── */
+#sense-label {
+  position: fixed; bottom: 40px; left: 5vw;
+  font-family: 'Rock 3D', cursive; font-size: 48px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); pointer-events: none;
+}
+
+/* ── Heart rain ── */
+#heart-rain { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+
+@keyframes heartFall {
+  0%   { transform: translateY(0)   rotate(0deg)   scale(1); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg) scale(0.6); opacity: 0; }
+}
+
+/* ── 3D Sticky Note ── */
+#sticky-scene {
+  position: fixed;
+  perspective: 800px;
+  pointer-events: none;
+  z-index: 50;
+  width: 0; height: 0;   /* positioned by JS */
+}
+
+#sticky-note {
+  width: 240px; height: 240px;
+  position: absolute;
+  transform-style: preserve-3d;
+  cursor: grab;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+#sticky-note.visible { opacity: 1; pointer-events: auto; }
+#sticky-note:active  { cursor: grabbing; }
+
+.sticky-face {
+  width: 100%; height: 100%;
+  position: absolute;
+  background: #fce8e8;
+  border-radius: 3px 3px 3px 18px;
+  border: 0.5px solid #e8b4b4;
+  box-shadow: 3px 5px 16px rgba(0,0,0,0.13),
+              inset 0 -2px 0 rgba(0,0,0,0.04);
+  padding: 22px 20px;
+  backface-visibility: hidden;
+}
+.sticky-label {
+  font-family: 'Rock 3D', cursive;
+  font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; color: #c07070;
+  margin-bottom: 12px;
+}
+.sticky-body {
+  font-size: 11px; line-height: 1.8;
+  font-weight: 300; color: #444; margin: 0;
+}
+.sticky-corner {
+  position: absolute; bottom: 0; right: 0;
+  width: 20px; height: 20px;
+  background: #f0c0c0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-radius: 0 0 0 3px;
+}
+
+
+
+#btn-heart .shape-sign { top: 58%; }
+
+/* ── Mobile ── */
+#mobile-sticky { display: none; }
+
+@media (max-width: 768px) {
+  html, body { cursor: auto; }
+  #cursor { display: none; }
+  .back { top: 18px; left: 18px; }
+
+  #nose-wrap {
+    height: min(52vh, 380px);
+    top: 38%;
+  }
+
+  /* panel → 底部抽屉 */
+  #panel-nosering,
+  #panel-stud,
+  #panel-tissue {
+    position: fixed !important;
+    left: 0 !important; right: 0 !important;
+    bottom: 0 !important; top: auto !important;
+    width: 100% !important; max-height: 50vh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0 !important;
+    border-left: none; border-right: none; border-bottom: none;
+    padding: 20px 20px 36px;
+    transform: translateY(100%) !important;
+    transform-origin: bottom center !important;
+    transition: opacity .4s cubic-bezier(.16,1,.3,1),
+                transform .4s cubic-bezier(.16,1,.3,1) !important;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.1) !important;
+  }
+  #panel-nosering.open,
+  #panel-stud.open,
+  #panel-tissue.open { transform: translateY(0) !important; }
+
+  #panel-nosering img { width: 100%; height: auto !important; object-fit: contain !important; }
+  #panel-stud { border-radius: 16px 16px 0 0 !important; }
+  #panel-tissue { align-items: center; justify-content: center; padding-top: 28px; }
+  #big-drop { font-size: 56px; }
+
+  /* sticky note → 轻量底部抽屉 */
+  #sticky-scene { display: none !important; }
+  #mobile-sticky {
+    display: block;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    width: 100%;
+    background: #fce8e8;
+    border-radius: 16px 16px 0 0;
+    border-top: 0.5px solid #e8b4b4;
+    padding: 20px 20px 36px;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.1);
+    z-index: 50;
+    opacity: 0; pointer-events: none;
+    transform: translateY(100%);
+    transition: opacity .4s cubic-bezier(.16,1,.3,1),
+                transform .4s cubic-bezier(.16,1,.3,1);
+  }
+  #mobile-sticky.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #mobile-sticky .sticky-label {
+    font-family: 'Rock 3D', cursive;
+    font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: #c07070; margin-bottom: 10px;
+  }
+  #mobile-sticky .sticky-body {
+    font-size: 12px; line-height: 1.8; font-weight: 300; color: #444;
+  }
+
+  #sense-label { font-size: clamp(20px, 7vw, 36px); bottom: 16px; left: 16px; }
 }
