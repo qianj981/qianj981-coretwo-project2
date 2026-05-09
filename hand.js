@@ -12,11 +12,11 @@ document.querySelectorAll('a, button').forEach(el => {
 const VB_W = 1039, VB_H = 700;
 
 const NAILS = [
-  { svgX: 306, svgY:  29, wordX: 359, wordY:  45, wordW:  97, wordH: 62 },
-  { svgX: 173, svgY:  71, wordX: 269, wordY: 114, wordW:  65, wordH: 56 },
-  { svgX:  50, svgY: 152, wordX: 120, wordY: 203, wordW: 101, wordH: 73 },
-  { svgX:  42, svgY: 330, wordX: 119, wordY: 374, wordW:  96, wordH: 64 },
-  { svgX: 316, svgY: 621, wordX: 429, wordY: 627, wordW:  97, wordH: 32 },
+  { svgX: 306.4, svgY:  29.1, wordX: 359, wordY:  45, wordW:  97, wordH: 62 },
+  { svgX: 173.5, svgY:  70.8, wordX: 269, wordY: 114, wordW:  65, wordH: 56 },
+  { svgX:  50.1, svgY: 151.5, wordX: 120, wordY: 203, wordW: 101, wordH: 73 },
+  { svgX:  41.9, svgY: 329.7, wordX: 119, wordY: 374, wordW:  96, wordH: 64 },
+  { svgX: 309.0, svgY: 622.0, wordX: 429, wordY: 627, wordW:  97, wordH: 32 },
 ];
 
 let SCALE = 1, IMG_LEFT = 0, IMG_TOP = 0;
